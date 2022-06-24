@@ -1,0 +1,18 @@
+[package]
+name = "opengr2-rust"
+version = "0.1.0"
+edition = "2021"
+
+build = "build.rs"
+links = "opengr2"
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+cc = { version = "1.0", features = ["parallel"] }
+pkg-config = "0.3"
+#system-deps = "2.0"
+
+#[package.metadata.dependencies]
+#pkg-config = "0.3"

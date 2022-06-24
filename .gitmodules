@@ -1,0 +1,3 @@
+[submodule "thirdparty/opengr2"]
+	path = thirdparty/opengr2
+	url = https://github.com/arves100/opengr2.git
