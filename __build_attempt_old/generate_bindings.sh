@@ -1,7 +1,4 @@
 bindings_directory="src/bindings/"
-bindgen_arguments=""
-# TODO: Fiddle with arguments to make a generalization of output that ignores system/standard bindings
-# bindgen_arguments = "'.*' --whitelist-function '^foo_.*' --whitelist-var '^FOO_.*'"
 
 library_include_path="thirdparty/opengr2/libopengrn"
 library_include_files=(
@@ -20,11 +17,18 @@ library_include_files=(
     "virtual_ptr.h"
 )
 
+clang_arguments=""
+
 rm -rf $bindings_directory
 mkdir $bindings_directory
 
 for include in "${library_include_files[@]}"; do
-    filename=$(basename ${include} .h)
-    bindgen $library_include_path/$include -o $bindings_directory/$filename.rs $bindgen_arguments
+    filename=$(basename $include .h)
+    arguments=(
+        --whitelist-function "^$filename_.*"
+        --whitelist-var "^$filename_.*"
+        --no-doc-comments
+    )
+    bindgen $library_include_path/$include -o $bindings_directory/$filename.rs ${arguments[@]} -- $clang_arguments
 done
 

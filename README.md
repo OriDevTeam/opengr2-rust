@@ -12,7 +12,7 @@ PROJECT IN DEVELOPMENT/EXPERIMENTAL
 ___
 
 # OpenGr2-rust (Bindings)
-Rust bindings for the library [opengr2](https://github.com/arves100/opengr2)
+Rust bindings for the C IO Granny2 File Format library [opengr2](https://github.com/arves100/opengr2) 
 
 
 ## Cargo

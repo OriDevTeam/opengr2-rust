@@ -1,52 +1,42 @@
+extern crate bindgen;
+
+use std::env;
+use std::path::PathBuf;
+
 const LIB_NAME: &str = "opengr2";
+const LIB_PATH: &str = "thirdparty\\opengr2\\libopengrn\\";
+const LIB_WRAPPER_PATH: &str = "wrapper.h";
+
 
 fn main() {
-    pkg_config::Config::new()
-        .atleast_version("1.2");
-        //.probe("z")
-        //.unwrap();
-    
-    let src = [
-        "thirdparty\\opengr2\\libopengrn\\compression.c",
-        //"thirdparty\\opengr2\\libopengrn\\crc.c",
-        // "thirdparty\\opengr2\\libopengrn\\darray.c",
-        //"thirdparty\\opengr2\\libopengrn\\debug.c",
-        //"thirdparty\\opengr2\\libopengrn\\elements.c",
-        // "thirdparty\\opengr2\\libopengrn\\elements_parse.c",
-        // "thirdparty\\opengr2\\libopengrn\\gr2.c",
-        // "thirdparty\\opengr2\\libopengrn\\gr2_read.c",
-        // "thirdparty\\opengr2\\libopengrn\\gr2_write.c",
-        // "thirdparty\\opengr2\\libopengrn\\magic.c",
-        // "thirdparty\\opengr2\\libopengrn\\oodle1.c.c",
-        // "thirdparty\\opengr2\\libopengrn\\platform.c",
-        // "thirdparty\\opengr2\\libopengrn\\typeinfo.c",
-        // "thirdparty\\opengr2\\libopengrn\\virtual_pointer.c",
-    ];
+    // Tell cargo to look for shared libraries in the specified directory
+    println!("cargo:rustc-link-search={}", LIB_PATH);
 
-    let mut builder = cc::Build::new();
-    let build = builder
-        .files(src.iter())
-        .include("include");
-        //.flag("-Wno-unused-parameter")
-        //.define("USE_ZLIB", None);
-    
-    build.compile(LIB_NAME);
+    // Tell cargo to tell rustc to link the system bzip2
+    // shared library.
+    println!("cargo:rustc-link-lib={}", LIB_NAME);
+
+    // Tell cargo to invalidate the built crate whenever the wrapper changes
+    println!("cargo:rerun-if-changed={}", LIB_WRAPPER_PATH);
+
+    // The bindgen::Builder is the main entry point
+    // to bindgen, and lets you build up options for
+    // the resulting bindings.
+    let bindings = bindgen::Builder::default()
+        // The input header we would like to generate
+        // bindings for.
+        .header(LIB_WRAPPER_PATH)
+        // Tell cargo to invalidate the built crate whenever any of the
+        // included header files changed.
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        // Finish the builder and generate the bindings.
+        .generate()
+        // Unwrap the Result and panic on failure.
+        .expect("Unable to generate bindings");
+
+    // Write the bindings to the $OUT_DIR/bindings.rs file.
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    bindings
+        .write_to_file(out_path.join("bindings.rs"))
+        .expect("Couldn't write bindings!");
 }
-
-
-/*
-// TODO: We might not really need to link this way since we have configuration for building above
-         but maybe we could provide a way of linking, decide if so 
-fn main() {
-   println!("cargo:rustc-link-lib={}", LIB_NAME);
-}
-*/
-
-
-/*
-# TODO: Check if we can use system_deps within Cargo
-fn main() {
-    system_deps::Config::new().probe().unwrap();
-}
-*/
-
